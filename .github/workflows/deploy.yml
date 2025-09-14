@@ -1,0 +1,30 @@
+name: Deploy resultados
+
+on:
+  schedule:
+    - cron: '*/1 * * * *'   # cada minuto
+  workflow_dispatch:        # también lo puedes ejecutar manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar repo
+        uses: actions/checkout@v3
+
+      - name: Configurar PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Ejecutar exportar.php
+        run: php exportar.php
+
+      - name: Commit y push de resultados
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add resultados.html
+          git commit -m "Auto-update resultados $(date '+%Y-%m-%d %H:%M:%S')" || echo "Sin cambios"
+          git push
